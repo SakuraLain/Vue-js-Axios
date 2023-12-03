@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pokémon API</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+  <style>
+    body {
+      background-color: #f5f5f5;
+    }
+
+    #app {
+      background-color: #fff;
+      margin-top: 30px;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: bold;
+      color: #ff4500;
+    }
+
+    p {
+      font-size: 18px;
+      color: #333;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      font-size: 24px;
+      font-weight: bold;
+      color: #ff4500;
+    }
+
+    .table th,
+    .table td {
+      vertical-align: middle;
+    }
+
+    .table th {
+      font-weight: bold;
+      background-color: #ff4500;
+      color: #fff;
+    }
+
+    .btn {
+      font-size: 14px;
+      font-weight: bold;
+      margin-right: 5px;
+    }
+    
+    .modal-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: white;
+    }
+    .modal-header {        
+    background-color: #df3e3c;
+    }
+    .modal-body {
+    background-color: #125777;
+    } 
+    .letrablanca {
+    color: white;
+    }  
+
+    .modal-body ul {
+      margin-left: 20px;
+    }
+
+    .fondo1{
+      background-color: #f2f2f2"
+    }
+    
+    .fondo2{
+      background-color: #f49999"
+    }
+
+    .fondo2{
+      background-color: #f49999"
+    }
+    .card{
+    border-top-width: 10px;
+    border-left-width: 10px;
+    border-bottom-width: 10px;
+    border-right-width: 10px;
+    }
+    .ta{
+    margin-bottom: 30px;
+    }
+    
+    .fire{
+    background-color: rgb(247, 74, 55);
+    }
+    .water{
+    background-color: rgb(0, 238, 255);
+    }
+    .electric{
+    background-color: rgb(255, 242, 0);
+    }
+    .grass{
+    background-color: rgb(0, 255, 106);
+    }
+    .ice{
+    background-color: rgb(0, 208, 255);
+    }
+    .fighting{
+    background-color: rgb(255, 157, 0);
+    }
+    .poison{
+    background-color: rgb(114, 0, 189);
+    }
+    .ground{
+    background-color: rgb(199, 219, 109);
+    }
+    .flying{
+    background-color: rgb(246, 239, 235);
+    }
+    .psychic{
+    background-color: rgb(142, 98, 207);
+    }
+    .bug{
+    background-color: rgb(73, 194, 7);
+    }
+    .rock{
+    background-color: rgb(152, 152, 152);
+    }
+    .ghost{
+    background-color: rgb(150, 171, 223);
+    }
+    .dragon{
+    background-color: rgb(72, 158, 108);
+    }
+    .dark{
+    background-color: rgb(77, 66, 79);
+    }
+    .steel{
+    background-color: rgb(199, 205, 201);
+    }
+    .fairy{
+    background-color: rgb(214, 126, 228);
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app" class="container mb-4">
+    <h1 class="my-4">Caja del PC</h1>
+    <p>En esta caja, puedes guardar Pokémon para cuando los necesites. ¡Busca y guarda tus Pokémon!</p>
+    
+    <h2 class="my-4 ml-4">Pokedex</h2>
+    <div class="card ta" style="height: 200px;max-width: 50%; background-image: url('1.jpg'); background-size: cover; background-position: center;">
+        <div class="form-group" style="max-width: 50%; margin: 0 auto;">
+            
+            <select style="margin-top: 65px;background-color: #125777;color: white;" id="pokemon-select" class="form-control  mr-4 mb-4" v-model="selectedPokemon" @change="addPokemon">
+                <option disabled value="">Selecciona un Pokémon</option>
+                <option v-for="pokemon in pokemonList" :value="pokemon.name" :key="pokemon.name">{{ pokemon.name }}</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="card">
+    <h2 class="my-4 ml-4">Tu equipo pokemon</h2>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th class="col-1">Imagen</th>
+          <th>Pokémon</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(pokemon, index) in selectedPokemonList" :key="index">
+          <td><img :src="pokemon.sprites.front_default" :alt="pokemon.name" width="50" height="50"></td>
+          <td>{{ pokemon.name }}</td>
+          <td>
+            <button class="btn btn-danger" @click="deletePokemon(index)">Borrar</button>
+            <button class="btn btn-info" @click="showModal(pokemon)">Mostrar Info</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+</div>
+
+    <div class="modal fade fondo2" id="pokemonModal" tabindex="-1" role="dialog" aria-labelledby="pokemonModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="pokemonModalLabel">Información del Pokémon</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="fondo2" style="background-color: #f49999;"><p>ID del Pokémon: {{ selectedPokemonInfo.id }}</p></div>
+            <div><p class="letrablanca">Nombre del Pokémon: {{ selectedPokemonInfo.name }}</p></div>
+            <p class="letrablanca">Tipos del Pokémon:</p>
+            <ul class="fondo1">
+                <button v-for="type in selectedPokemonInfo.types" :key="type.type.name" :class="['btn', 'btn-light', type.type.name]">
+                    {{ type.type.name }}
+                  </button>
+            </ul><div style="background-color: #e1dddd;">
+            <p>Habilidades del Pokémon:</p>
+            <ul style="background-color: #f2f2f2">
+              <button class="btn btn-dark" v-for="ability in selectedPokemonInfo.abilities" :key="ability.ability.name">{{ ability.ability.name }}</button>
+            </ul>
+            <p>Movimientos del Pokémon:</p>
+            <ul style="background-color: #f2f2f2">
+              <li v-for="move in selectedPokemonInfo.moves" :key="move.move.name">{{ move.move.name }}</li>
+            </ul>
+          </div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@2.5.3/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+  <script>
+    new Vue({
+      el: "#app",
+      data: {
+        pokemonList: [],
+        selectedPokemon: "",
+        selectedPokemonList: [],
+        selectedPokemonInfo: {},
+      },
+      created() {
+        this.getPokemonList();
+      },
+      methods: {
+        getPokemonList() {
+          axios
+            .get("https://pokeapi.co/api/v2/pokemon?limit=1008")
+            .then((response) => {
+              this.pokemonList = response.data.results;
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+        },
+        addPokemon() {
+          if (this.selectedPokemon !== "") {
+            axios
+              .get(`https://pokeapi.co/api/v2/pokemon/${this.selectedPokemon}`)
+              .then((response) => {
+                this.selectedPokemonList.push(response.data);
+                this.selectedPokemon = "";
+              })
+              .catch((error) => {
+                console.log(error);
+              });
+          }
+        },
+        deletePokemon(index) {
+          this.selectedPokemonList.splice(index, 1);
+        },
+        showModal(pokemon) {
+          this.selectedPokemonInfo = pokemon;
+          $("#pokemonModal").modal("show");
+        },
+      },
+    });
+  </script>
+</body>
+
+</html>
